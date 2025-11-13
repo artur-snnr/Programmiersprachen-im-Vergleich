@@ -1,0 +1,49 @@
+\documentclass[10pt,twocolumn]{article}
+
+% Standard-Pakete
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}   % oder "english"
+\usepackage{lipsum}           % für Blindtext, optional
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath, amssymb}
+\usepackage[
+    backend=biber,
+    style=alphabetic,
+]{biblatex}
+\addbibresource{literatur.bib} 
+
+% Schönere Seitenränder
+\usepackage[a4paper,margin=2cm]{geometry}
+
+% Optional: bessere Schrift
+\usepackage{newtxtext,newtxmath} % Times-ähnliche Schrift
+
+% Titelinformationen
+\title{Programmiersprachen im Vergleich}
+\author{Artur Papoyan}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Zusammenfassung
+\end{abstract}
+
+\section{Einleitung}
+\lipsum[1]
+
+\section{Hauptteil}
+\lipsum[2-3]
+
+\section{Fazit}
+\lipsum[4]
+
+
+\printbibliography
+
+
+\end{document}

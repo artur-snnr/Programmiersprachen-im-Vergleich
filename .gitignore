@@ -19,3 +19,83 @@ target
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# Unterlagen
+**/Unterlagen/
+no_heading_with_context.txt
+no_heading.txt
+Readme.md
+simple.txt
+with_context.txt
+
+
+# Output files
+*.aux
+*.bbl
+*.blg
+*.brf
+*.lof
+*.log
+*.lot
+*.out
+*.toc
+*.nav
+*.snm
+*.toc
+*.xdv
+*.bcf
+*.xml
+*.run.xml
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.synctex
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+
+# PDF & DVI (wenn Build-Artefakte)
+*.dvi
+*.ps
+
+# Latexmk / arara / tools
+latexmkrc
+*.latexmain
+
+# Editor backup files
+*~
+*.swp
+*.tmp
+*.bak
+*.backup
+
+# VSCode / TeX extensions
+.vscode/
+*.code-workspace
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Overleaf / cache
+*.blg
+*.bbl
+*.auxlock
+
+# Rust
+Cargo.lock
+Cargo.toml
+**/target/
+**/*.rs.bk
+*.pdb
+
+
+# Testdaten 
+test_data.zip
+*.zip
