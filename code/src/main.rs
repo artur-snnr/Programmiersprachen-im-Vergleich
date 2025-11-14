@@ -9,13 +9,13 @@ fn search_in_file(filename: &str, pattern: &Regex) {
     for (linenumber, line) in reader.lines().enumerate() {
         let content = line.unwrap();
         if pattern.is_match(&content) {
-            println!("{}:{}:{}", filename, linenumber + 1, content);
-        } 
+            println!("Filename: {} |||| Line Number:{} |||| Content:{}", filename, linenumber + 1, content);
+        }  
     }
 }
 
 fn main() {
-    let args = vec!["searcher", "tz", "testdateien/testtext.txt"];
+    let args = vec!["searcher", "dsfs", "testdateien/testtext.txt"];
     
     let pattern = &args[1];
     let regex = Regex::new(pattern).unwrap();
@@ -24,8 +24,10 @@ fn main() {
         search_in_file(filename, &regex);
     }
 }
+
 /* --- IGNORE ---
 usage: searcher [OPTIONS] PATTERN [PATH ...]
+
 -A, --after-context <n>     n Folgezeilen je Treffer
 -B, --before-context <n>    n Vorzeilen je Treffer
 -C, --context <n>           n Vor- und Folgezeilen (Kurzform für -A/-B)
