@@ -13,12 +13,10 @@
     style=alphabetic,
 ]{biblatex}
 \addbibresource{literatur.bib} 
+\usepackage{csquotes}
 
 % Schönere Seitenränder
 \usepackage[a4paper,margin=2cm]{geometry}
-
-% Optional: bessere Schrift
-\usepackage{newtxtext,newtxmath} % Times-ähnliche Schrift
 
 % Titelinformationen
 \title{Programmiersprachen im Vergleich}
@@ -30,17 +28,75 @@
 \maketitle
 
 \begin{abstract}
-Zusammenfassung
 \end{abstract}
 
-\section{Einleitung}
-\lipsum[1]
+\section{Introduction}
+\begin{itemize}
+    \item Motivation 
+    \item Overview of the paper structure
+\end{itemize}
+    
+\section{Rust Highlights}
+\subsection{Origin and Design Philosophy}
+\begin{itemize}
+    \item History and Background
+    \item Goal Memory Safety without Garbage Collector
+    \item Role of the Rust Foundation
+\end{itemize}
 
-\section{Hauptteil}
-\lipsum[2-3]
+\subsection{Ownership and Borrowing}
+\begin{itemize}
+\item Ownership model: who owns what?
+\item Borrowing: shared and exclusive references
+\item Borrow Checker and lifetimes
+\end{itemize}
 
-\section{Fazit}
-\lipsum[4]
+\subsection{Memory Management Without Garbage Collector}
+\begin{itemize}
+\item Automatic deallocation via scope-based drop
+\item Comparison to Garbage Collector
+\end{itemize}
+
+
+\subsection{Concurrency and Synchronization}
+\begin{itemize}
+\item Fearless Concurrency
+\item Safety + Performance
+\item Zero-Cost Abstractions
+\item Send/Sync
+\item Threads, Channels
+\item async/await + runtime ecosystem
+\end{itemize}
+
+\subsection{Type System and Language Characteristics}
+\begin{itemize}
+\item Static typing
+\item Traits and Generics
+\item Pattern Matching
+\item Error handling: Result, Option
+\end{itemize}
+
+\subsection{Tooling and Ecosystem}
+\begin{itemize}
+\item Cargo (Package Manager and Build System)
+\item Crates.io (Ecosystem)
+\item rustup and Toolchains
+\item rustdoc, Testing, Benchmarking
+\end{itemize}
+
+\subsection{Current Developments}
+
+\subsection{Comparison with Other Languages}
+\begin{itemize}
+\item Rust vs. C++
+\end{itemize}
+
+
+\section{Practical Section}
+
+
+
+\section{Conclusion}
 
 
 \printbibliography
