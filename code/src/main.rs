@@ -1,8 +1,19 @@
 use regex::Regex;
 use std::fs::File;
-use std::io::{BufReader, BufRead};
+use std::io::{self, BufReader, BufRead, Read};
 use std::path::Path;
 use std::fs;
+
+// Funktion zum Hervorheben der Treffer in der Ausgabe
+fn highlight_regex(line: &str, re: &Regex, use_color: bool) -> String {
+    if !use_color {
+        return line.to_string();
+    }
+    re.replace_all(line, |caps: &regex::Captures| {
+        format!("\x1b[31m{}\x1b[0m", &caps[0])
+    })
+    .to_string()
+}
 
 // Funktion zum Durchsuchen einer Datei nach dem Muster
 fn search_in_file(filename: &Path, pattern: &Regex) {
@@ -12,11 +23,36 @@ fn search_in_file(filename: &Path, pattern: &Regex) {
     for (linenumber, line) in reader.lines().enumerate() {
         let content = line.unwrap();
         if pattern.is_match(&content) {
-            println!("Filename: {} |||| Line Number:{} |||| Content:{}", filename.display(), linenumber + 1, content);
+            let highlighted = highlight_regex(&content, pattern, true);
+            println!(
+                "Filename: {} |||| Line Number:{} |||| Content:{}",
+                filename.display(),
+                linenumber + 1,
+                highlighted
+            );
+            //println!("Filename: {} |||| Line Number:{} |||| Content:{}", filename.display(), linenumber + 1, content);
         }  
     }
 }
 
+fn is_text_file(path: &Path) -> bool {
+    let mut file = match File::open(path) {
+        Ok(f) => f,
+        Err(_) => return false,
+    };
+
+    let mut buffer = [0u8; 1024]; // die ersten 1 KB einlesen um zu prüfen ob es Text ist
+    let n = match file.read(&mut buffer) {
+        Ok(n) => n,
+        Err(_) => return false,
+    };
+
+    if n == 0 { // leere Datei
+        return true;
+    }
+
+    std::str::from_utf8(&buffer[..n]).is_ok()
+}
 
 // checken ob Pfad eine Datei, ein Verzeichnis ist oder nicht exisitiert
 #[derive(PartialEq, Eq)]
@@ -37,7 +73,11 @@ fn check_path(path: &Path) -> PathType {
 fn handle_path(path: &Path, pattern: &Regex) -> Result<(), Box<dyn std::error::Error>> {
     match check_path(path) {
         PathType::File => {
-            search_in_file(path, pattern);
+            if is_text_file(path) {
+                search_in_file(path, pattern);
+            } else {
+                eprintln!("Binär-Datei gefunden: {}", path.display());
+            }
         }
         PathType::Directory => {
             for entry in fs::read_dir(path)? {
@@ -57,7 +97,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let regex = Regex::new("df")?;
 
     handle_path(path, &regex)?;
-
     Ok(())
 }
     /* 
