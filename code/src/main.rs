@@ -58,7 +58,7 @@ fn search_in_file(filename: &Path,
         let start = idx.saturating_sub(before_context);
         let end = (idx + after_context).min(lines.len() - 1);
 
-        if let Some((last_start, last_end)) = ranges.last_mut() {
+        if let Some((_last_start, last_end)) = ranges.last_mut() {
             if start <= *last_end + 1 {
                 if end > *last_end {
                     *last_end = end;
