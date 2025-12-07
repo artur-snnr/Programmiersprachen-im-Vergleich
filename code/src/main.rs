@@ -5,7 +5,6 @@ use std::path::Path;
 use std::fs;
 use std::collections::HashSet;
 use std::env;
-use std::error::Error;
 use std::path::PathBuf;
 
 // Funktion zum Hervorheben der Treffer in der Ausgabe
@@ -28,7 +27,7 @@ fn search_in_file(filename: &Path,
                     after_context: usize) {
     let file = File::open(filename).unwrap();
     let reader = BufReader::new(file);
-
+    
     let mut lines: Vec<String> = Vec::new();
     for line in reader.lines() {
         match line {
@@ -39,11 +38,11 @@ fn search_in_file(filename: &Path,
     if lines.is_empty() {
         return;
     }
-
+    // Alle Zeilen mit Treffer sammeln
     let mut match_indices: Vec<usize> = Vec::new();
     for (i, line) in lines.iter().enumerate() {
         if pattern.is_match(line) {
-            match_indices.push(i);
+            match_indices.push(i); // Treffer gefunden
         }
     }
 
@@ -71,14 +70,16 @@ fn search_in_file(filename: &Path,
             ranges.push((start, end));
         }
     }
-
+    // no-heading Implementierung
     if with_heading {
     println!("{}",filename.display());
     }
     
     let file_display = filename.display();
 
+    // Für jeden Treffer einen Kontextbereich [start, end] bauen
     for (range_idx, (start, end)) in ranges.iter().enumerate() {
+        // Blöcke ausgeben, mit "--" dazwischen
         if with_heading && range_idx > 0 {
             println!("--");
         }
@@ -104,7 +105,7 @@ fn search_in_file(filename: &Path,
     }
 }
 
-
+// Binärdatei-Erkennung
 fn is_text_file(path: &Path) -> bool {
     let mut file = match File::open(path) {
         Ok(f) => f,
@@ -124,6 +125,7 @@ fn is_text_file(path: &Path) -> bool {
     std::str::from_utf8(&buffer[..n]).is_ok()
 }
 
+// versteckte Dateien/Ordner
 fn is_hidden(path: &Path) -> bool {
     path.file_name()
         .and_then(|n| n.to_str())
@@ -187,7 +189,7 @@ fn handle_path(path: &Path,
 
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let help = "/
+    let help = "
         usage: searcher [OPTIONS] PATTERN [PATH ...]
 
         -A, --after-context <n>     n Folgezeilen je Treffer
@@ -284,25 +286,3 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
-
-
-    /* 
-    let args = vec!["searcher", "dsfs", "testdateien/testtext.txt"];
-    
-    let pattern = &args[1];
-    let regex = Regex::new(pattern).unwrap();
-
-    for filename in &args[2..] {
-        search_in_file(filename, &regex);
-    }*/
-
-/* --- IGNORE ---
-usage: searcher [OPTIONS] PATTERN [PATH ...]
-
--A, --after-context <n>     n Folgezeilen je Treffer
--B, --before-context <n>    n Vorzeilen je Treffer
--C, --context <n>           n Vor- und Folgezeilen (Kurzform für -A/-B)
---help                      Hilfe anzeigen
---no-heading                keine Dateiblocks, sondern eine Zeile pro Treffer
-
-*/
