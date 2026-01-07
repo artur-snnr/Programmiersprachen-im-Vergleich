@@ -35,11 +35,21 @@
     
 \section{Rust Highlights}
 \subsection{Origin and Design Philosophy}
-\begin{itemize}
-    \item History and Background
-    \item Goal Memory Safety without Garbage Collector
-    \item Role of the Rust Foundation
-\end{itemize}
+
+\subsubsection{History and Background}
+
+Rust's creation was driven by the goal of overcoming the apparent trade-off between safety and control in programming languages. Graydon Hoare began developing Rust in 2006 (as a side project at Mozilla), and Mozilla officially sponsored the project by 2009. After years of open development and community input, Rust 1.0 was released in 2015. From the outset, Rust's design philosophy has focused on providing memory safety without a garbage collector and concurrency safety without data races, all while preserving the performance of low-level programming. In other words, Rust aspires to give developers the “bare metal” control of C/C++ with far fewer chances to shoot themselves in the foot.
+
+\subsubsection{Goal: Memory Safety without Garbage Collector}
+
+A core tenet of Rust's philosophy is to enforce memory safety statically (at compile time) rather than through runtime checks. Rust features a strong static type system and an ownership model that together enforce strict safety guarantees. Common causes of bugs in C/C++ (such as dangling pointers, double frees, or buffer overflows) are prevented in Rust by design, because the language rules simply disallow those dangerous patterns in safe code. If needed, Rust does permit escaping the strict rules via an \texttt{unsafe} keyword (for instance, to interface with low-level hardware or optimize a critical routine), but unsafe blocks are explicitly marked and encapsulated, and the programmer must then ensure safety manually. Even with this escape hatch, the overall approach is that safe Rust code is memory-safe and free of undefined behavior. This approach has been successful: Rust has quickly gained a reputation for reliability and has been adopted in domains like operating system kernels, browser engines, and even space systems software where reliability is paramount.
+
+Memory safety in Rust is achieved without using a garbage collector, which is a distinguishing aspect of its design. Instead of automatic garbage collection, Rust uses deterministic memory management through its ownership system. This eliminates the runtime overhead of a GC and avoids nondeterministic pauses, while still preventing use-after-free and other memory errors at compile time. The language also emphasizes zero-cost abstractions, meaning that higher-level constructs (like generics, iterators, traits, or async functions) compile down to code that is as efficient as hand-written low-level C code.
+
+\subsubsection{Role of the Rust Foundation}
+
+To ensure the long-term sustainability of the language and community, the Rust Foundation was established in 2021. This independent organization took over the stewardship of Rust from Mozilla and now oversees the language's governance, development, and ecosystem. Backed by companies like Amazon, Microsoft, and Google, the foundation provides organizational support and helps guide the future direction of Rust. This move has helped strengthen trust in Rust's longevity, especially in industries that require long-term support and stability in their development tools.
+
 
 \subsection{Ownership and Borrowing}
 \begin{itemize}
