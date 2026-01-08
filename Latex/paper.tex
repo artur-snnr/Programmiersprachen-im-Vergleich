@@ -28,27 +28,85 @@
 \end{abstract}
 
 \section{Introduction}
-\begin{itemize}
-    \item Motivation 
-    \item Overview of the paper structure
-\end{itemize}
+\paragraph{Motivation}
+
+\paragraph{Overview of the paper structure}
+
+
+Rust is a modern systems programming language that promises to bridge the long-standing gap 
+between low-level control and high-level safety. It was first developed by Mozilla starting in 
+2006, with version 1.0 released in 2015. The motivation behind Rust's design is to provide the 
+performance and flexibility of languages like C or C++ while preventing the kinds of errors 
+that commonly plague those languages. In particular, Rust aims to eliminate entire classes 
+of memory-related bugs (such as buffer overflows, use-after-free errors, and null pointer 
+dereferences) through a strict compile-time checking regime. This focus on memory safety has 
+real-world significance: for example, introducing Rust into large projects like Android has 
+correlated with a substantial drop in memory safety vulnerabilities (from 76\% to 35\% of total 
+vulnerabilities between 2019 and 2022). At the same time, Rust maintains performance on par 
+with traditional unmanaged languages by avoiding runtime overhead - there is no garbage collector 
+pausing the program, and zero-cost abstractions ensure high-level code compiles down to efficient 
+machine code. This combination of safety and speed is often referred to as Rust's attempt at the 
+“holy grail” of programming languages.
+
+Another important aspect of Rust's evolution is its community and governance. After Mozilla's 
+initial stewardship, Rust's development is now overseen by the independent Rust Foundation (established 
+in 2021 with sponsorship from multiple companies) to ensure a sustainable future for the language
+en.wikipedia.org
+. The language has rapidly grown in popularity, consistently topping developer survey charts as one 
+of the most loved languages, and it has been adopted in major projects ranging from web services to 
+operating systems. In the following sections, we provide an overview of Rust's key features and design 
+highlights, and share our practical experience implementing a tool in Rust. Section 2 discusses the 
+highlights of Rust, including its design philosophy, ownership model, memory management approach, 
+concurrency features, type system, and tooling ecosystem. Section 3 then describes the implementation 
+of a grep-like search program in Rust, outlining the libraries used, challenges faced, and how Rust's 
+features influenced the development. Finally, Section 4 concludes the paper with reflections on Rust's 
+strengths and its comparison to other languages like C++.
+
+
     
 \section{Rust Highlights}
 \subsection{Origin and Design Philosophy}
 
-\subsubsection{History and Background}
+\paragraph{History and Background}
 
-Rust's creation was driven by the goal of overcoming the apparent trade-off between safety and control in programming languages. Graydon Hoare began developing Rust in 2006 (as a side project at Mozilla), and Mozilla officially sponsored the project by 2009. After years of open development and community input, Rust 1.0 was released in 2015. From the outset, Rust's design philosophy has focused on providing memory safety without a garbage collector and concurrency safety without data races, all while preserving the performance of low-level programming. In other words, Rust aspires to give developers the “bare metal” control of C/C++ with far fewer chances to shoot themselves in the foot.
+Rust's creation was driven by the goal of overcoming the apparent trade-off 
+between safety and control in programming languages. Graydon Hoare began developing 
+Rust in 2006 (as a side project at Mozilla), and Mozilla officially sponsored the 
+project by 2009. After years of open development and community input, Rust 1.0 was 
+released in 2015. From the outset, Rust's design philosophy has focused on providing 
+memory safety without a garbage collector and concurrency safety without data races, all 
+while preserving the performance of low-level programming. In other words, Rust aspires to 
+give developers the “bare metal” control of C/C++ with far fewer chances to shoot themselves in the foot.
 
-\subsubsection{Goal: Memory Safety without Garbage Collector}
+\paragraph{Goal: Memory Safety without Garbage Collector}
++
+A core tenet of Rust's philosophy is to enforce memory safety statically (at compile time) 
+rather than through runtime checks. Rust features a strong static type system and an ownership 
+model that together enforce strict safety guarantees. Common causes of bugs in C/C++ (such as 
+dangling pointers, double frees, or buffer overflows) are prevented in Rust by design, because 
+the language rules simply disallow those dangerous patterns in safe code. If needed, Rust does 
+permit escaping the strict rules via an \texttt{unsafe} keyword (for instance, to interface with 
+low-level hardware or optimize a critical routine), but unsafe blocks are explicitly marked and 
+encapsulated, and the programmer must then ensure safety manually. Even with this escape hatch, 
+the overall approach is that safe Rust code is memory-safe and free of undefined behavior. This approach has 
+been successful: Rust has quickly gained a reputation for reliability and has been adopted in domains like 
+operating system kernels, browser engines, and even space systems software where reliability is paramount.
 
-A core tenet of Rust's philosophy is to enforce memory safety statically (at compile time) rather than through runtime checks. Rust features a strong static type system and an ownership model that together enforce strict safety guarantees. Common causes of bugs in C/C++ (such as dangling pointers, double frees, or buffer overflows) are prevented in Rust by design, because the language rules simply disallow those dangerous patterns in safe code. If needed, Rust does permit escaping the strict rules via an \texttt{unsafe} keyword (for instance, to interface with low-level hardware or optimize a critical routine), but unsafe blocks are explicitly marked and encapsulated, and the programmer must then ensure safety manually. Even with this escape hatch, the overall approach is that safe Rust code is memory-safe and free of undefined behavior. This approach has been successful: Rust has quickly gained a reputation for reliability and has been adopted in domains like operating system kernels, browser engines, and even space systems software where reliability is paramount.
+Memory safety in Rust is achieved without using a garbage collector, which is a distinguishing aspect of its 
+design. Instead of automatic garbage collection, Rust uses deterministic memory management through its ownership 
+system. This eliminates the runtime overhead of a GC and avoids nondeterministic pauses, while still preventing 
+use-after-free and other memory errors at compile time. The language also emphasizes zero-cost abstractions, meaning 
+that higher-level constructs (like generics, iterators, traits, or async functions) compile down to 
+code that is as efficient as hand-written low-level C code.
 
-Memory safety in Rust is achieved without using a garbage collector, which is a distinguishing aspect of its design. Instead of automatic garbage collection, Rust uses deterministic memory management through its ownership system. This eliminates the runtime overhead of a GC and avoids nondeterministic pauses, while still preventing use-after-free and other memory errors at compile time. The language also emphasizes zero-cost abstractions, meaning that higher-level constructs (like generics, iterators, traits, or async functions) compile down to code that is as efficient as hand-written low-level C code.
+\paragraph{Role of the Rust Foundation}
 
-\subsubsection{Role of the Rust Foundation}
-
-To ensure the long-term sustainability of the language and community, the Rust Foundation was established in 2021. This independent organization took over the stewardship of Rust from Mozilla and now oversees the language's governance, development, and ecosystem. Backed by companies like Amazon, Microsoft, and Google, the foundation provides organizational support and helps guide the future direction of Rust. This move has helped strengthen trust in Rust's longevity, especially in industries that require long-term support and stability in their development tools.
+To ensure the long-term sustainability of the language and community, the Rust Foundation was established in 
+2021. This independent organization took over the stewardship of Rust from Mozilla and now oversees the 
+language's governance, development, and ecosystem. Backed by companies like Amazon, Microsoft, and Google, 
+the foundation provides organizational support and helps guide the future direction of Rust. This move has 
+helped strengthen trust in Rust's longevity, especially in industries that require 
+long-term support and stability in their development tools.
 
 
 \subsection{Ownership and Borrowing}
