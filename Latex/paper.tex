@@ -13,6 +13,52 @@
 ]{biblatex}
 \addbibresource{literatur.bib} 
 \usepackage{csquotes}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{rustBlue}{RGB}{0,92,170}
+\definecolor{rustGreen}{RGB}{0,128,0}
+\definecolor{rustPurple}{RGB}{128,0,128}
+\definecolor{rustGray}{RGB}{100,100,100}
+\definecolor{rustOrange}{RGB}{180,90,0}
+
+\lstdefinestyle{rust}{
+  language=Rust,
+  basicstyle=\ttfamily\small,
+  numbers=left,
+  numberstyle=\tiny\color{rustGray},
+  frame=single,
+  framerule=0.4pt,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+
+\lstdefinelanguage{rust}{
+  keywords={
+    fn, let, mut, pub, impl, trait, for, while, loop,
+    if, else, match, struct, enum, use, mod,
+    const, static, ref, return, break, continue,
+    async, await, where, move, unsafe
+  },
+  keywordstyle=\color{rustBlue}\bfseries,
+  ndkeywords={
+    i8,i16,i32,i64,i128,
+    u8,u16,u32,u64,u128,
+    usize,isize,bool,str,String,Vec,Option,Result
+  },
+  ndkeywordstyle=\color{rustPurple},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{rustGreen},
+  stringstyle=\color{rustOrange},
+  morestring=[b]",
+  literate=
+    {'a}{{\textcolor{rustPurple}{'a}}}2
+    {->}{{$\rightarrow$}}2
+    {&}{{\textcolor{rustBlue}{\&}}}1
+}
 
 \usepackage[a4paper,margin=2cm]{geometry}
 
@@ -144,15 +190,73 @@ introduce runtime overhead. Borrowing therefore enables flexible access to data 
 and thread safety\cite{matsakis2014ownership,jung2018rustbelt}.
 
 \paragraph{Borrow Checker and lifetimes}
-The enforcement of ownership and borrowing rules is performed by the Rust compiler component known as the borrow checker. The borrow 
-checker analyzes the program to ensure that all references are valid and that they do not outlive the data they refer to. To achieve 
+The enforcement of ownership and borrowing rules is performed by the Rust compiler component known as the borrow checker. The borrow
+checker analyzes the program to ensure that all references are valid and that they do not outlive the data they refer to. To achieve
 this, Rust uses the concept of lifetimes, which describe the scope during which a reference is valid\cite{rustbook}.
 
-Lifetimes are usually inferred automatically by the compiler, allowing programmers to write code without explicitly annotating 
-them in most cases. When necessary, explicit lifetime annotations make the relationships between references clear and verifiable. 
-Through this analysis, the borrow checker guarantees that references never become dangling and that memory safety is preserved. 
-The soundness of this approach, even in the presence of certain unsafe abstractions, has been formally studied and justified in prior work\cite{jung2018rustbelt}.
+Lifetimes are not inferred in general. Instead, Rust applies a set of lifetime elision rules that allow lifetime annotations to be
+omitted in simple function signatures. These rules cover many common cases in practice, which allows programmers to write code
+without explicitly specifying lifetimes most of the time. However, when functions involve multiple references and return one of
+them, explicit lifetime annotations are required to make the relationship between references clear and verifiable.
 
+Through this analysis, the borrow checker guarantees that references never become dangling and that memory safety is preserved.
+The soundness of this approach, even in the presence of certain unsafe abstractions, has been formally studied and justified in prior
+work \cite{jung2018rustbelt}.
+
+\paragraph{Example: Ownership, Borrowing, and Lifetimes in Practice}
+
+To better illustrate Rust's programming style and its approach to memory safety, this section presents a small but representative code example. 
+The example focuses on borrowing and lifetimes, which are often considered one of Rust's most distinctive features.
+
+Consider the following function:
+
+\begin{lstlisting}[style=rust, language=rust, caption={Simple Rust function}]
+fn longest<'a>(a: &'a str, b: &'a str) -> &'a str {
+    if a.len() > b.len() {
+        a
+    } else {
+        b
+    }
+}
+\end{lstlisting}
+
+This function takes two string slices and returns the longer one. At first glance, the lifetime annotation $'a$ may seem unnecessary or 
+confusing, especially for programmers coming from languages such as C or Java. However, this annotation plays a crucial role in ensuring 
+memory safety. In Rust, references must always be valid. The compiler must be able to guarantee that the returned reference does not 
+outlive the data it points to. In this example, both input references $a$ and $b$ have the same lifetime $'a$. By also assigning the 
+same lifetime to the return type, the function explicitly states that the returned reference is valid only as long as both input references are valid.
+
+Without this information, the compiler would not know which input reference the return value is related to. 
+As a result, Rust requires the programmer to specify this relationship explicitly when it cannot be derived automatically.
+
+This becomes clearer when looking at an incorrect version:
+
+\begin{lstlisting}[style=rust, language=rust, caption={Simple Rust function}]
+fn longest(a: &str, b: &str) -> &str {
+    if a.len() > b.len() {
+        a
+    } else {
+        b
+    }
+}
+\end{lstlisting}
+
+This code does not compile. The compiler reports that it cannot infer the lifetime of the returned reference. Even though the logic of the function 
+is correct, Rust rejects it because the lifetime relationship between the inputs and the output is ambiguous.
+
+The explicit lifetime annotation does not change how the program runs at runtime. Lifetimes are a purely compile-time concept. They exist 
+only to help the compiler reason about borrowing and to prevent common memory errors such as use-after-free.
+
+This example also highlights a general design principle of Rust: safety guarantees are enforced statically, before the program is executed. 
+While this may require additional annotations in some cases, it avoids entire classes of runtime errors that are common in low-level languages.
+
+In practice, many functions do not require explicit lifetime annotations because Rust supports lifetime elision rules. These rules allow the 
+compiler to omit lifetimes in simple and common cases. However, when a function takes multiple references and returns one of them, as shown 
+here, explicit lifetimes are necessary to express the intended relationship clearly.
+
+Overall, this example demonstrates how Rust combines explicit annotations with strong static analysis to achieve memory safety without 
+garbage collection. While the syntax may appear unusual at first, it enables precise reasoning about resource usage and helps prevent subtle 
+bugs in complex systems.
 
 \subsection{Memory Management Without Garbage Collector}
 
